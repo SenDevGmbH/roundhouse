@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "roundhouse.console": {
+      "commandName": "Project",
+      "commandLineArgs": "-cs \"aaa\" -databasetype=Advantage -f \"c:\\Projects\\roundhouse\\db\\Advantage\\TestRoundhousE\""
+    }
+  }
+}
