@@ -2,7 +2,7 @@
   "profiles": {
     "roundhouse.console": {
       "commandName": "Project",
-      "commandLineArgs": "-cs \"Data Source=C:\\AdvantageDbs\\RhTest.add;ServerType=LOCAL;User ID=adssys\" -databasetype=\"roundhouse.databases.advantage.AdvantageDatabase, roundhouse.databases.advantage\" -f \"c:\\Projects\\roundhouse\\db\\Advantage\\TestRoundhousE\""
+      "commandLineArgs": "-cs \"Data Source=C:\\AdvantageDbs\\RhTest.add;ServerType=LOCAL;User ID=adssys\" -databasetype=\"roundhouse.databases.advantage.AdvantageDatabase, roundhouse.databases.advantage\" -f \"c:\\Projects\\roundhouse\\db\\Advantage\\TestRoundhousE\" --silent"
     }
   }
 }

@@ -56,9 +56,5 @@ namespace roundhouse.databases.advantage
             throw new NotSupportedException();
         }
 
-        public override string delete_database_script()
-        {
-            throw new NotSupportedException();
-        }
     }
 }
