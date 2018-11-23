@@ -24,7 +24,7 @@ namespace roundhouse.infrastructure.loaders
 
             Type object_type = Type.GetType(object_to_create);
 
-            if (object_type == null) throw new NullReferenceException(string.Format("A type could not be created from the object you passed. \"{0}\" resolves to null.", object_to_create));
+            if (object_type == null) return null;
 
             ConstructorInfo ci = object_type.GetConstructor(new Type[] { });
 

@@ -1,11 +1,12 @@
 namespace roundhouse.infrastructure.app.builders
 {
-    using System;
-    using System.Reflection;
-    using System.Security.Principal;
     using databases;
     using filesystem;
     using loaders;
+    using System;
+    using System.Globalization;
+    using System.Reflection;
+    using System.Security.Principal;
 
     public static class DatabaseBuilder
     {
@@ -20,17 +21,16 @@ namespace roundhouse.infrastructure.app.builders
                 merge_assembly_name = "roundhouse";
             }
 
-            try
-            {
-                string database_type = configuration_property_holder.DatabaseType;
-                database_type = database_type.Substring(0, database_type.IndexOf(','));
-                database_to_migrate = DefaultInstanceCreator.create_object_from_string_type<Database>(database_type + ", " + merge_assembly_name);
+            string database_type = configuration_property_holder.DatabaseType;
+            string typeNameWithoutAssembly = database_type.Substring(0, database_type.IndexOf(','));
+            database_to_migrate =
+                DefaultInstanceCreator.create_object_from_string_type<Database>(typeNameWithoutAssembly + ", " + merge_assembly_name) ??
+                DefaultInstanceCreator.create_object_from_string_type<Database>(configuration_property_holder.DatabaseType);
 
-            }
-            catch (NullReferenceException)
-            {
-                database_to_migrate = DefaultInstanceCreator.create_object_from_string_type<Database>(configuration_property_holder.DatabaseType);
-            }
+            if(database_to_migrate == null)
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture,
+                    "A type could not be created from the object you passed. \"{0}\" resolves to null.", database_type));
+
 
             if (restore_from_file_ends_with_LiteSpeed_extension(file_system, configuration_property_holder.RestoreFromPath))
             {

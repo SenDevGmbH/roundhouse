@@ -6,8 +6,8 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
-    <RootNamespace>roundhouse.databases.sqlserver</RootNamespace>
-    <AssemblyName>roundhouse.databases.sqlserver</AssemblyName>
+    <RootNamespace>roundhouse.databases.advantage</RootNamespace>
+    <AssemblyName>roundhouse.databases.advantage</AssemblyName>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <NoWarn>NU1701</NoWarn>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>

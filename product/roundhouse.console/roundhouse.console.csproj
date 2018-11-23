@@ -68,6 +68,9 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\roundhouse.databases.access\roundhouse.databases.access.csproj" ExcludeAssets="All" />
+    <ProjectReference Include="..\roundhouse.databases.advantage\roundhouse.databases.advantage.csproj" ExcludeAssets="All">
+      <Private>true</Private>
+    </ProjectReference>
     <ProjectReference Include="..\roundhouse.databases.mysql\roundhouse.databases.mysql.csproj" ExcludeAssets="All" />
     <ProjectReference Include="..\roundhouse.databases.oracle\roundhouse.databases.oracle.csproj" ExcludeAssets="All" />
     <ProjectReference Include="..\roundhouse.databases.postgresql\roundhouse.databases.postgresql.csproj" ExcludeAssets="All" />

@@ -1,4 +1,4 @@
-﻿namespace roundhouse.databases.sqlserver.orm
+﻿namespace roundhouse.databases.advantage.orm
 {
     using System;
     using FluentNHibernate.Mapping;
@@ -20,9 +20,9 @@
             Map(x => x.repository_path);
             Map(x => x.version).Length(50);
             Map(x => x.script_name);
-            Map(x => x.text_of_script).CustomType("StringClob").CustomSqlType("ntext");
-            Map(x => x.erroneous_part_of_script).CustomType("StringClob").CustomSqlType("ntext");
-            Map(x => x.error_message).CustomType("StringClob").CustomSqlType("ntext");
+            Map(x => x.text_of_script).CustomType("StringClob").CustomSqlType("nmemo");
+            Map(x => x.erroneous_part_of_script).CustomType("StringClob").CustomSqlType("nmemo");
+            Map(x => x.error_message).CustomType("StringClob").CustomSqlType("nmemo");
 
             //audit
             Map(x => x.entry_date);
