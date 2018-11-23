@@ -1,4 +1,4 @@
-﻿namespace roundhouse.databases.sqlserver.orm
+﻿namespace roundhouse.databases.advantage.orm
 {
     using System;
     using FluentNHibernate.Mapping;
