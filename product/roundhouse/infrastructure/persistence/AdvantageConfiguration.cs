@@ -9,6 +9,7 @@ using System;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
+using System.Linq;
 
 namespace roundhouse.infrastructure.persistence
 {
@@ -62,7 +63,7 @@ namespace roundhouse.infrastructure.persistence
             base.AdjustCommand(command);
             using (var reader = command.ExecuteReader())
             {
-                while(reader.Read())
+                while (reader.Read())
                 {
                 }
             }
@@ -98,6 +99,8 @@ namespace roundhouse.infrastructure.persistence
             RegisterColumnType(DbType.Boolean, "logical");
 
         }
+
+        public override string AddColumnString => "add";
 
         public override bool SupportsIdentityColumns { get { return true; } }
 
@@ -148,21 +151,22 @@ namespace roundhouse.infrastructure.persistence
 
         public override DataTable GetTables(string catalog, string schemaPattern, string tableNamePattern, string[] types)
         {
-            var restrictions = new[] { schemaPattern, tableNamePattern, null };
-            DataTable objTbl = Connection.GetSchema("Tables", restrictions);
+            DataTable objTbl = Connection.GetSchema("Tables");
+            var notMatchingRows = objTbl.Rows.OfType<DataRow>().Where(r => !string.Equals(r["TABLE_NAME"]?.ToString(), tableNamePattern, StringComparison.OrdinalIgnoreCase)).ToList();
+            notMatchingRows.ForEach(r => objTbl.Rows.Remove(r));
             return objTbl;
         }
 
         public override DataTable GetIndexInfo(string catalog, string schemaPattern, string tableName)
         {
-            var restrictions = new[] { schemaPattern, tableName, null };
+            var restrictions = new[] { null, null,tableName, null};
             DataTable objTbl = Connection.GetSchema("Indexes", restrictions);
             return objTbl;
         }
 
         public override DataTable GetIndexColumns(string catalog, string schemaPattern, string tableName, string indexName)
         {
-            var restrictions = new[] { schemaPattern, tableName, indexName, null };
+            var restrictions = new[] { null, null, tableName, indexName};
             DataTable objTbl = Connection.GetSchema("IndexColumns", restrictions);
             return objTbl;
         }
@@ -170,14 +174,14 @@ namespace roundhouse.infrastructure.persistence
         public override DataTable GetColumns(string catalog, string schemaPattern, string tableNamePattern,
                                                 string columnNamePattern)
         {
-            var restrictions = new[] { schemaPattern, tableNamePattern, null };
+            var restrictions = new[] { null, null, tableNamePattern };
             DataTable objTbl = Connection.GetSchema("Columns", restrictions);
             return objTbl;
         }
 
         public override DataTable GetForeignKeys(string catalog, string schema, string table)
         {
-            var restrictions = new[] { schema, table, null };
+            var restrictions = new[] { null, null, table };
             DataTable objTbl = Connection.GetSchema("ForeignKeys", restrictions);
             return objTbl;
         }
@@ -194,7 +198,12 @@ namespace roundhouse.infrastructure.persistence
 
         protected override string GetColumnName(DataRow rs)
         {
-            return Convert.ToString(rs["COLUMN_NAME"]);
+            string columnName;
+            if (rs.Table.Columns.OfType<DataColumn>().Any(c => string.Equals(c.ColumnName, "ColumnName", StringComparison.OrdinalIgnoreCase)))
+                columnName = "ColumnName";
+            else
+                columnName = "Name";
+            return Convert.ToString(rs[columnName]);
         }
 
         protected override string GetConstraintName(DataRow rs)
@@ -216,17 +225,13 @@ namespace roundhouse.infrastructure.persistence
 
         protected override string GetIndexName(DataRow rs)
         {
-            return (string)rs["INDEX_NAME"];
+            return (string)rs["Name"];
         }
 
         protected override void ParseTableInfo(DataRow rs)
         {
             Catalog = null;
-            Schema = Convert.ToString(rs["TABLE_SCHEMA"]);
-            if (string.IsNullOrEmpty(Schema))
-            {
-                Schema = null;
-            }
+            Schema = null;
             Name = Convert.ToString(rs["TABLE_NAME"]);
         }
     }
@@ -235,13 +240,13 @@ namespace roundhouse.infrastructure.persistence
     {
         public AvantageColumnMetaData(DataRow rs) : base(rs)
         {
-            Name = Convert.ToString(rs["COLUMN_NAME"]);
+            Name = Convert.ToString(rs["ColumnName"]);
 
-            this.SetColumnSize(rs["COLUMN_SIZE"]);
-            this.SetNumericalPrecision(rs["PRECISION"]);
+            this.SetColumnSize(rs["ColumnSize"]);
+            this.SetNumericalPrecision(rs["NumericPrecision"]);
 
-            Nullable = Convert.ToString(rs["IS_NULLABLE"]);
-            TypeName = Convert.ToString(rs["DATA_TYPE"]);
+            Nullable = Convert.ToString(rs["AllowDBNull"]);
+            TypeName = Convert.ToString(rs["DataType"]);
         }
     }
 
@@ -249,7 +254,7 @@ namespace roundhouse.infrastructure.persistence
     {
         public AdvantageIndexMetaData(DataRow rs) : base(rs)
         {
-            Name = (string)rs["INDEX_NAME"];
+            Name = (string)rs["Name"];
         }
     }
 
@@ -257,8 +262,6 @@ namespace roundhouse.infrastructure.persistence
     {
         public AdvantageForeignKeyMetaData(DataRow rs) : base(rs)
         {
-            // There is no thing like a constraint name for ASA9 - so
-            // we just use the column name here ...
             Name = (string)rs["COLUMN_NAME"];
         }
     }
