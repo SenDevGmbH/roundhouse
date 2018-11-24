@@ -1,5 +1,5 @@
 CREATE TABLE Timmy
 (
-  ID  Integer NOT NULL Identity(1,1)
+  ID  AUTOINC
   ,dude varchar(50) NULL
 )

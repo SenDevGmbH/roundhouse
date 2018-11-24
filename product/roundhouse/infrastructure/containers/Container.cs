@@ -13,7 +13,7 @@ namespace roundhouse.infrastructure.containers
 
         public static TypeToGet get_an_instance_of<TypeToGet>()
         {
-            if (the_container == null) throw new NullReferenceException("The container has not been initialized yet, can't return anything.");
+            if (the_container == null) throw new InvalidOperationException("The container has not been initialized yet, can't return anything.");
             return the_container.Resolve<TypeToGet>();
         }
     }

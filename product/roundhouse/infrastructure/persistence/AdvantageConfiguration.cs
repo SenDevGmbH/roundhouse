@@ -1,15 +1,14 @@
-﻿using System;
-using System.Data;
-using System.Data.Common;
-using System.Globalization;
-using FluentNHibernate.Cfg.Db;
+﻿using FluentNHibernate.Cfg.Db;
 using Iesi.Collections.Generic;
 using NHibernate.Dialect;
 using NHibernate.Dialect.Schema;
 using NHibernate.Driver;
-using NHibernate.Engine;
 using NHibernate.SqlCommand;
 using NHibernate.SqlTypes;
+using System;
+using System.Data;
+using System.Data.Common;
+using System.Globalization;
 
 namespace roundhouse.infrastructure.persistence
 {
@@ -53,9 +52,20 @@ namespace roundhouse.infrastructure.persistence
         }
         public override IDbCommand GenerateCommand(CommandType type, SqlString sqlString, SqlType[] parameterTypes)
         {
-            var command =  base.GenerateCommand(type, sqlString, parameterTypes);
+            var command = base.GenerateCommand(type, sqlString, parameterTypes);
 
             return command;
+        }
+
+        public override void AdjustCommand(IDbCommand command)
+        {
+            base.AdjustCommand(command);
+            using (var reader = command.ExecuteReader())
+            {
+                while(reader.Read())
+                {
+                }
+            }
         }
         public override IDbConnection CreateConnection()
         {
@@ -73,6 +83,7 @@ namespace roundhouse.infrastructure.persistence
         public override bool UseNamedPrefixInParameter { get { return false; } }
 
         public override string NamedPrefix { get { return ":"; } }
+
     }
 
     public class AdvantageDialect : Dialect
@@ -81,26 +92,37 @@ namespace roundhouse.infrastructure.persistence
 
         public AdvantageDialect()
         {
-            RegisterColumnType(DbType.String, string.Format(CultureInfo.InvariantCulture,"NVarChar({0})", TypeNames.LengthPlaceHolder));
+            RegisterColumnType(DbType.String, string.Format(CultureInfo.InvariantCulture, "NVarChar({0})", TypeNames.LengthPlaceHolder));
             RegisterColumnType(DbType.DateTime, "timestamp");
             RegisterColumnType(DbType.Int64, "rowversion");
             RegisterColumnType(DbType.Boolean, "logical");
 
         }
 
+        public override bool SupportsIdentityColumns { get { return true; } }
 
-        public override string GetTypeName(SqlType sqlType, int length, int precision, int scale)
+        public override bool HasDataTypeInIdentityColumn
         {
-            return base.GetTypeName(sqlType, length, precision, scale);
+            get
+            {
+                return false;
+            }
+        }
+        public override string GetIdentityColumnString(DbType type)
+        {
+            return "AutoInc";
+        }
+
+        public override string IdentitySelectString
+        {
+            get
+            {
+                return "Select top 1 LastAutoInc(CONNECTION) from system.objects";
+            }
         }
         public override IDataBaseSchema GetDataBaseSchema(DbConnection connection)
         {
             return new AdvantageDataBaseMetaData(connection);
-        }
-
-        public override string GetTypeName(SqlType sqlType)
-        {
-            return base.GetTypeName(sqlType);
         }
     }
 
@@ -114,7 +136,7 @@ namespace roundhouse.infrastructure.persistence
         }
 
         public override ISet<string> GetReservedWords()
-        { 
+        {
             var result = new HashedSet<string>();
             DataTable dtReservedWords = Connection.GetSchema(DbMetaDataCollectionNames.ReservedWords);
             foreach (DataRow row in dtReservedWords.Rows)
